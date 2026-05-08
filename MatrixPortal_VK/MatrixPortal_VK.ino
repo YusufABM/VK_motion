@@ -586,6 +586,9 @@ void setup() {
   pinMode(BTN_UP,   INPUT_PULLUP);
   pinMode(BTN_DOWN, INPUT_PULLUP);
 
+  pinMode(4, OUTPUT);
+  digitalWrite(4, LOW);
+
   ProtomatterStatus status = matrix.begin();
   Serial.print("Protomatter status: ");
   Serial.println((int)status);

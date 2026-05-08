@@ -2,9 +2,8 @@ module.exports = {
   apps: [
     {
       name: 'vkmotion',
-      script: 'server.ts',
-      interpreter: 'ts-node',
-      interpreter_args: '--project tsconfig.server.json',
+      script: 'npm',
+      args: 'run start',
       env: {
         NODE_ENV: 'production',
         PORT: '3000',

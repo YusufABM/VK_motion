@@ -1,0 +1,17 @@
+services:
+  vkmotion:
+    build: .
+    container_name: vkmotion
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    volumes:
+      # SQLite database persisted outside the container
+      - vkmotion_db:/app/db
+    environment:
+      NODE_ENV: production
+      PORT: "3000"
+      DB_PATH: /app/db/vkmotion.db
+
+volumes:
+  vkmotion_db:
