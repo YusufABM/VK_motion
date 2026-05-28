@@ -4,6 +4,10 @@ import db from '@/lib/db'
 export const dynamic = 'force-dynamic'
 
 export function GET() {
+  try { return getHeatmap() } catch { return NextResponse.json({ slots: [] }, { status: 503 }) }
+}
+
+function getHeatmap() {
   const fourWeeksAgo = Date.now() - 28 * 24 * 60 * 60 * 1000
 
   // Group by ISO weekday (1=Mon…7=Sun) and 2-hour slot

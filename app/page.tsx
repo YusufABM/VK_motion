@@ -91,8 +91,26 @@ function getInitialData() {
   }
 }
 
+function safeInitialData() {
+  try {
+    return getInitialData()
+  } catch {
+    return {
+      counter: 0,
+      state: 'counter' as const,
+      temp: 0,
+      humidity: 0,
+      lastUpdated: Date.now(),
+      slots: fakeHeatmapSlots(),
+      recordCount: 0,
+      lastHeartbeat: null,
+      serverStarted: Date.now(),
+    }
+  }
+}
+
 export default function DashboardPage() {
-  const data = getInitialData()
+  const data = safeInitialData()
 
   return (
     <WebSocketProvider

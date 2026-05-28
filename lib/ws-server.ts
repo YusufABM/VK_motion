@@ -36,7 +36,7 @@ function broadcast(wss: WebSocketServer, payload: object) {
 }
 
 export function attachWsServer(httpServer: Server): WebSocketServer {
-  const wss = new WebSocketServer({ noServer: true })
+  const wss = new WebSocketServer({ noServer: true, perMessageDeflate: false })
 
   // Only upgrade requests at /ws path
   httpServer.on('upgrade', (req: IncomingMessage, socket: Duplex, head: Buffer) => {
@@ -64,7 +64,10 @@ export function attachWsServer(httpServer: Server): WebSocketServer {
         return
       }
 
-      if ('type' in msg && (msg as Record<string, unknown>).type === 'ping') return
+      if ('type' in msg && (msg as Record<string, unknown>).type === 'ping') {
+        socket.send(JSON.stringify({ type: 'pong' }))
+        return
+      }
 
       if (isHeartbeat(msg)) {
         db.prepare('INSERT INTO heartbeats (recorded_at) VALUES (?)').run(Date.now())
@@ -87,7 +90,9 @@ export function attachWsServer(httpServer: Server): WebSocketServer {
       broadcast(wss, { type: 'update', counter, state, temp, humidity, lastUpdated: now })
     })
 
-    socket.on('close', () => console.log(`[ws] Client disconnected: ${origin}`))
+    socket.on('close', (code, reason) =>
+      console.log(`[ws] Client disconnected: ${origin} — code: ${code}, reason: "${reason.toString()}"`)
+    )
     socket.on('error', (err) => console.error(`[ws] Socket error (${origin}):`, err.message))
   })
 

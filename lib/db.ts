@@ -9,6 +9,7 @@ const dbDir = path.dirname(DB_PATH)
 if (!fs.existsSync(dbDir)) fs.mkdirSync(dbDir, { recursive: true })
 
 const db = new Database(DB_PATH)
+db.pragma('busy_timeout = 5000')  // wait up to 5s before throwing SQLITE_BUSY
 db.pragma('journal_mode = WAL')
 db.pragma('foreign_keys = ON')
 
