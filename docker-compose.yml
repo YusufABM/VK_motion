@@ -4,7 +4,7 @@ services:
     container_name: vkmotion
     restart: unless-stopped
     ports:
-      - "3000:3000"
+      - "2095:3000"
     volumes:
       # SQLite database persisted outside the container
       - vkmotion_db:/app/db
