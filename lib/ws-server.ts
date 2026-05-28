@@ -64,6 +64,8 @@ export function attachWsServer(httpServer: Server): WebSocketServer {
         return
       }
 
+      if ('type' in msg && (msg as Record<string, unknown>).type === 'ping') return
+
       if (isHeartbeat(msg)) {
         db.prepare('INSERT INTO heartbeats (recorded_at) VALUES (?)').run(Date.now())
         broadcast(wss, { type: 'heartbeat' })

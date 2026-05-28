@@ -73,12 +73,20 @@ export function WebSocketProvider({ initial, children }: Props) {
     let reconnectTimer: ReturnType<typeof setTimeout>
     let unmounted = false
 
+    let keepaliveInterval: ReturnType<typeof setInterval>
+
     function connect() {
       ws = new WebSocket(wsUrl!)
       setLive((prev) => ({ ...prev, wsConnected: false }))
 
       ws.onopen = () => {
         setLive((prev) => ({ ...prev, wsConnected: true }))
+        // Ping every 30s — keeps Cloudflare from dropping idle connections (100s timeout)
+        keepaliveInterval = setInterval(() => {
+          if (ws.readyState === WebSocket.OPEN) {
+            ws.send(JSON.stringify({ type: 'ping' }))
+          }
+        }, 30_000)
       }
 
       ws.onmessage = (evt) => {
@@ -111,12 +119,17 @@ export function WebSocketProvider({ initial, children }: Props) {
         }
       }
 
-      ws.onclose = () => {
+      ws.onclose = (evt) => {
+        clearInterval(keepaliveInterval)
         setLive((prev) => ({ ...prev, wsConnected: false }))
+        console.warn(`[ws] closed — code: ${evt.code}, reason: "${evt.reason}"`)
         if (!unmounted) reconnectTimer = setTimeout(connect, 5_000)
       }
 
-      ws.onerror = () => ws.close()
+      ws.onerror = (err) => {
+        console.error('[ws] error', err)
+        ws.close()
+      }
     }
 
     connect()
@@ -124,6 +137,7 @@ export function WebSocketProvider({ initial, children }: Props) {
     return () => {
       unmounted = true
       clearTimeout(reconnectTimer)
+      clearInterval(keepaliveInterval)
       if (heartbeatTimer.current) clearTimeout(heartbeatTimer.current)
       ws?.close()
     }

@@ -40,16 +40,15 @@ const WifiNetwork wifiNetworks[] = {
 };
 const int WIFI_NETWORK_COUNT = sizeof(wifiNetworks) / sizeof(wifiNetworks[0]);
 
-// ── LOCAL TEST: set WS_HOST to your laptop's IP on the same WiFi ─────────────
+/* ── LOCAL TEST: set WS_HOST to your laptop's IP on the same WiFi ─────────────
 const char* WS_HOST = "192.168.0.104";  // <-- update to your laptop's IP
 const int   WS_PORT = 3000;             // same port as Next.js
 const char* WS_PATH = "/ws";            // WebSocket endpoint path
-/*
+*/
 // ── PRODUCTION (Cloudflare Tunnel) ───────────────────────────────────────────
 const char* WS_HOST = "vkmotion.site";
 const int   WS_PORT = 443;
 const char* WS_PATH = "/ws";
-*/
 
 // ─── App states ───────────────────────────────────────────────────────────────
 enum AppState { STATE_COUNTER, STATE_CLEANING };
@@ -239,8 +238,7 @@ void networkTask(void* parameter) {
   };
 
   connectWifi();
-  //webSocket.beginSSL(WS_HOST, WS_PORT, WS_PATH);
-  webSocket.begin(WS_HOST, WS_PORT, WS_PATH);
+  webSocket.beginSSL(WS_HOST, WS_PORT, WS_PATH);
   webSocket.onEvent(webSocketEvent);
   webSocket.setReconnectInterval(5000);
 
@@ -256,7 +254,7 @@ void networkTask(void* parameter) {
         Serial.println("[WiFi] Lost – scanning all networks");
         connectWifi();
         webSocket.disconnect();
-        webSocket.begin(WS_HOST, WS_PORT, WS_PATH);
+        webSocket.beginSSL(WS_HOST, WS_PORT, WS_PATH);
       } else {
         wifiConnected = true;
       }
